@@ -1,0 +1,53 @@
+{% extends "layout.html" %}
+{% block body %}
+<div class="entries">
+    <div id="image">
+      <img id="img"  src="{{ url_for('static', filename=image) }}" >
+      <div class=center id="img_title" >{{ image_name }} ({{id+1}}/{{count}})</div>
+    </div>
+
+    <div id="topright">
+         <form action="{{ url_for('show_image', id = id_plus) }}" method=post class=add-entry>
+            <input type=hidden value="{{ image_name }}" name=image_name>
+              {% for label in labels %}
+                <div class=inputcontainer>
+                    <label>{{ label.name }}:</label>
+                    <div class=center>
+                    {% if label.type == "checkbox" %}
+                        <input class=center type="checkbox" name="label_{{ label.name }}" {% if label.value == "on" %}checked{% endif %}>
+                    {% endif %}
+                    {% if label.type == "text" %}
+                        <input type="text" name="label_{{ label.name }}" value="{{ label.value }}">
+                    {% endif %}
+                    {% if label.type == "number" %}
+                        <input type="number" step="any" name="label_{{ label.name }}" value="{{ label.value }}">
+                    {% endif %}
+                    {% if label.type == "range" %}
+                        <input type="range" name="label_{{ label.name }}" value="{{ label.value }}" min="{{ label.min }}" max="{{ label.max }}" oninput="this.nextElementSibling.value = this.value">
+                        <output>{{label.value}}</output>
+                    {% endif %}
+                    {% if label.type == "select" %}
+                        <select name="label_{{ label.name }}">
+                        {% for opt in label.options %}
+                            <option value="{{opt}}" {% if opt == label.value %}SELECTED{% endif %}>{{opt}}</option>
+                        {% endfor %}
+                        </select>
+                    {% endif %}
+                    </div>
+                </div>
+              {% endfor %}
+            <div class=center>
+                <input type=submit value="save" name=save class="button_save">
+            </div>
+         </form>
+        <div class=center>
+            <button class="button_next float_left" onclick="location.href='{{ url_for('show_image', id = id_minus) }}';">&larr;</button>
+            <button class="button_next float_right" onclick="location.href='{{ url_for('show_image', id = id_plus) }}';">&rarr;</button>
+            <button class="button_continue" onclick="location.href='{{ url_for('show_image') }}';">continue</button>
+        </div>
+
+    </div>
+</div>
+
+<img class=preload src="{{ url_for('static', filename=image_plus) }}" >
+{% endblock %}

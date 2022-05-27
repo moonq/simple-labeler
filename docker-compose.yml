@@ -1,0 +1,14 @@
+version: '2'
+
+
+services:
+  labeler:
+    build:
+      context: code
+    ports:
+      - "${EXPOSE}:8080"
+    volumes:
+      - "${DATAFOLDER}:/data/"
+    environment:
+      - UID=${UID}
+    restart: unless-stopped

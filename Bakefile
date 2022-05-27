@@ -1,0 +1,15 @@
+# https://github.com/moonq/bake
+
+if [[ ! -e .env ]]; then
+  cp -v example.env .env
+fi
+
+
+up() { # Run the service
+    docker-compose up --build -t 0 --force-recreate -d
+    docker-compose logs -f -t --tail=1000
+}
+
+down() { # Stop the service
+    docker-compose down -t 0
+}

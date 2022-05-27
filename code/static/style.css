@@ -1,0 +1,98 @@
+body            { font-family: sans-serif; background: #888; margin: 0px;
+                  min-height: 100vh; width: 100vw; overflow-x: hidden; }
+a, h1, h2       { color: #377ba8; }
+h1, h2          { font-family: 'Georgia', serif; margin: 0; }
+h1              { border-bottom: 2px solid #eee; }
+h2              { font-size: 1.2em; }
+
+tr,td,tbody             { margin: 0px; }
+
+.page           { margin: 0em;
+                  padding: 0em; background: #888; min-height: 100vh; width: 100vw;}
+.entries        { list-style: none; margin: 0; padding: 0; width:100%; min-height: 95vh; }
+
+.large          { font-size: 3em; }
+.right          { text-align: right; }
+.center          { text-align: center; }
+
+#image          { position: absolute;
+                  left:0px; top:0px;
+                  width: calc(100vw - 220px); /*height:95vh;*/ }
+#img            { max-width: calc(100vw - 220px); max-height:95vh;
+                  width: auto; height: auto;
+                  display: block; margin-left: auto;
+                  margin-right: auto; }
+
+#img_title      { overflow-x: hidden;
+                  overflow-wrap: anywhere;
+}
+
+#topright       { position: absolute;
+                  right:0px; top:0px;
+                  /*width: 20vw;*/
+                  height:95vh;
+                  font-size: large; }
+.inputcontainer {
+    z-index:1;
+    background-color: #aaa;
+    padding: 5px;
+    margin-bottom: 3px;
+    border-radius: 5px;
+    width: 210px;
+}
+
+
+input, select           {
+                  width: 180px;
+                  font-size: large;
+                }
+
+
+input[type="text"] {
+
+}
+input[type="submit"] {
+
+}
+input[type="checkbox"] {
+    width: 3em;
+    height: 1.5em;
+}
+label { display: block; }
+output { display: block; font-weight: bold; }
+
+.button_next {
+  width: 2em;
+  height: 3em;
+  font-size: large;
+  margin-top: 1em;
+}
+.float_left {
+    float: left;
+}
+.float_right {
+    float:right;
+}
+.button_save {
+  height: 3em;
+  margin-top: 1em;
+  margin-left: 1em;
+  margin-right: 1em;
+  clear: both;
+}
+.button_continue {
+  height: 4em;
+  margin-top: 3em;
+  margin-left: auto;
+  margin-right: auto;
+  width: 6em;
+}
+
+.preload {
+  position: absolute;
+  left: 0px;
+  bottom: 0px;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+}
