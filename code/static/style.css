@@ -37,8 +37,8 @@ body {
 
 #home {
   position: absolute;
-  left: 0px;
-  bottom: 0px;
+  left: 1px;
+  bottom: 2px;
 }
 
 #home a {
