@@ -1,11 +1,10 @@
-Simle Image Labeler
+# Simple Image Labeler
 
 For trainig machine learning algorithms.
 
 Setup:
 
 - Copy `example.env` as `.env`
-- Start the docker instance
 - Write a data/config.json:
 
 ```
@@ -49,4 +48,18 @@ Setup:
     }
   ]
 }
+```
+- Start the docker instance
+- Open the URL in http://localhost:$EXPOSE
+
+## With nginx:
+
+```
+location /labeler/ {
+         proxy_pass http://localhost:8088/;
+         proxy_set_header Host $host;
+         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+         proxy_set_header X-Scheme $scheme;
+         proxy_set_header X-Script-Name /labeler;
+    }
 ```
