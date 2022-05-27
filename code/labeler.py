@@ -1,5 +1,3 @@
-import time
-import datetime
 import os
 import re
 import json
@@ -13,7 +11,6 @@ from flask import (
     url_for,
     abort,
     render_template,
-    flash,
 )
 from revprox import ReverseProxied
 
@@ -40,6 +37,7 @@ def before_request_func():
         with open(app.config["CONFIG_FILE"], "rt") as fp:
             g.config = json.load(fp)
             g.labels = g.config["labels"]
+            g.users = g.config["users"]
     except Exception as e:
         logging.warning(e)
         logging.warning("config.json could not be read. using defaults.")
@@ -55,9 +53,11 @@ def before_request_func():
             },
         ]
         g.config = {"title": "Labeler", "labels": g.labels}
+        g.users = ["user"]
 
     for label in g.labels:
-        label['value'] = label['default']
+        label["value"] = label["default"]
+
 
 def natural_key(string_):
     """See http://www.codinghorror.com/blog/archives/001018.html"""
@@ -66,7 +66,7 @@ def natural_key(string_):
 
 def get_metadata_path(image_path):
     base, ext = os.path.splitext(os.path.basename(image_path))
-    jsonpath = os.path.join(app.config["LABELDIR"], base + ".json")
+    jsonpath = os.path.join(app.config["LABELDIR"], get_user(), base + ".json")
     return jsonpath
 
 
@@ -126,9 +126,45 @@ def set_metadata(values, imagepath):
         return json.dump(values, fp, indent=2, sort_keys=True)
 
 
+def set_user(user_name):
+    if user_name not in g.users:
+        raise ValueError("No such user {}".format(user_name))
+    session["user"] = user_name
+    try:
+        os.makedirs(os.path.join(app.config["LABELDIR"], user_name))
+    except FileExistsError:
+        pass
+
+
+def get_user():
+
+    return session.get("user", None)
+
+
 @app.route("/", methods=["GET", "POST"])
+@app.route("/user:<int:user>", methods=["GET", "POST"])
+def main(user=None):
+
+    if request.method == "POST":
+        user_name = request.form["user_name"]
+        set_user(user_name)
+        return redirect(url_for("show_image"))
+
+    user_name = get_user()
+
+    return render_template(
+        "main.html",
+        current_user=user_name,
+        users=g.users,
+        title=g.config.get("title", "Labeler"),
+    )
+
+
+@app.route("/image", methods=["GET", "POST"])
 @app.route("/image:<int:id>", methods=["GET", "POST"])
 def show_image(id=None):
+    if get_user() is None:
+        return redirect(url_for("main"))
 
     if request.method == "POST":
         # parse form
