@@ -15,6 +15,7 @@ from flask import (
 from revprox import ReverseProxied
 
 # configuration
+VERSION = "2022.05.27"
 IMAGEDIR = "/data/images/"
 LABELDIR = "/data/labels/"
 CONFIG_FILE = "/data/config.json"
@@ -33,6 +34,7 @@ app.wsgi_app = ReverseProxied(app.wsgi_app)
 
 @app.before_request
 def before_request_func():
+    g.version = app.config["VERSION"]
     try:
         with open(app.config["CONFIG_FILE"], "rt") as fp:
             g.config = json.load(fp)
@@ -43,7 +45,7 @@ def before_request_func():
         logging.warning("config.json could not be read. using defaults.")
         g.labels = [
             {"type": "checkbox", "name": "my_check", "default": "off"},
-            {"type": "text", "name": "my_text", "default": "1.0"},
+            {"type": "text", "name": "my_text", "default": "Some text"},
             {
                 "type": "range",
                 "name": "my_slider",
@@ -55,8 +57,14 @@ def before_request_func():
         g.config = {"title": "Labeler", "labels": g.labels}
         g.users = ["user"]
 
+    if not "title" in g.config:
+        g.config["title"] = "Labeler"
+
     for label in g.labels:
-        label["value"] = label["default"]
+        if label["type"] == "range":
+            label["value"] = label.get("default", label.get("min", ""))
+        else:
+            label["value"] = label.get("default", "")
 
 
 def natural_key(string_):
@@ -152,12 +160,7 @@ def main(user=None):
 
     user_name = get_user()
 
-    return render_template(
-        "main.html",
-        current_user=user_name,
-        users=g.users,
-        title=g.config.get("title", "Labeler"),
-    )
+    return render_template("main.html", current_user=user_name)
 
 
 @app.route("/image", methods=["GET", "POST"])
@@ -194,5 +197,4 @@ def show_image(id=None):
         labels=labels,
         id_minus=id_minus,
         id_plus=id_plus,
-        title=g.config.get("title", "Labeler"),
     )

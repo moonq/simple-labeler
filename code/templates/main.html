@@ -1,13 +1,12 @@
 {% extends "layout.html" %}
 {% block body %}
 <div class="entries">
-
   <div class="center inputcontainer">
   <form action="{{ url_for('main') }}" method=post class=add-entry>
   <label>Choose user:</label>
   <select name="user_name">
-    {% for user in users %}
-        <option value="{{user}}" {% if user == current_user %}SELECTED{% endif %}>{{user}}</option>
+    {% for user in g.users %}
+        <option value="{{user}}" {% if user == current_user %}SELECTED{% endif %} >{{user}}</option>
     {% endfor %}
   </select>
   <br>

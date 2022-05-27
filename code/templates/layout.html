@@ -1,14 +1,15 @@
-<!doctype html>
+<!DOCTYPE html>
+<html>
 <head>
-<title>{{ title }}</title>
-<link rel=stylesheet type=text/css href="{{ url_for('static', filename='style.css') }}">
-<meta name="viewport" content="width=440" />
-<script language="javascript" src="{{ url_for('static', filename='script.js') }}"  ></script>
-
+  <title>{{ g.config.title }}</title>
+  <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='style.css') }}">
+  <meta name="viewport" content="width=440">
+  <meta name="VERSION" content="{{ g.version }}">
+  <script language="javascript" src="{{ url_for('static', filename='script.js') }}"></script>
 </head>
 <body>
-<div class=page>
-
-  {% block body %}{% endblock %}
-</div>
+  <div class="page">
+    {% block body %}{% endblock %}
+  </div>
 </body>
+</html>

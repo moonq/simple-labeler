@@ -11,29 +11,33 @@
             <input type=hidden value="{{ image_name }}" name=image_name>
               {% for label in labels %}
                 <div class=inputcontainer>
+                  {% if label.type == "info" %}
+                     <label class=info>{{ label.title }}</label>
+                  {% else %}
                     <label>{{ label.name }}:</label>
                     <div class=center>
                     {% if label.type == "checkbox" %}
-                        <input class=center type="checkbox" name="label_{{ label.name }}" {% if label.value == "on" %}checked{% endif %}>
+                        <input class=center type="checkbox" name="label_{{ label.name }}" {% if label.value == "on" %}checked{% endif %} title="{{label.title}}">
                     {% endif %}
                     {% if label.type == "text" %}
-                        <input type="text" name="label_{{ label.name }}" value="{{ label.value }}">
+                        <input type="text" name="label_{{ label.name }}" value="{{ label.value }}" title="{{label.title}}">
                     {% endif %}
                     {% if label.type == "number" %}
-                        <input type="number" step="any" name="label_{{ label.name }}" value="{{ label.value }}">
+                        <input type="number" step="any" name="label_{{ label.name }}" value="{{ label.value }}" title="{{label.title}}">
                     {% endif %}
                     {% if label.type == "range" %}
-                        <input type="range" name="label_{{ label.name }}" value="{{ label.value }}" min="{{ label.min }}" max="{{ label.max }}" oninput="this.nextElementSibling.value = this.value">
+                        <input type="range" name="label_{{ label.name }}" value="{{ label.value }}" min="{{ label.min }}" max="{{ label.max }}" oninput="this.nextElementSibling.value = this.value" title="{{label.title}}">
                         <output>{{label.value}}</output>
                     {% endif %}
                     {% if label.type == "select" %}
-                        <select name="label_{{ label.name }}">
+                        <select name="label_{{ label.name }}" title="{{label.title}}">
                         {% for opt in label.options %}
                             <option value="{{opt}}" {% if opt == label.value %}SELECTED{% endif %}>{{opt}}</option>
                         {% endfor %}
                         </select>
                     {% endif %}
                     </div>
+                  {% endif %}
                 </div>
               {% endfor %}
             <div class=center>
@@ -45,8 +49,8 @@
             <button class="button_next float_right" onclick="location.href='{{ url_for('show_image', id = id_plus) }}';">&rarr;</button>
             <button class="button_continue" onclick="location.href='{{ url_for('show_image') }}';">continue</button>
         </div>
-
     </div>
+    <div id="home"><a href="{{ url_for('main') }}" title="Back to user selection">🏠</a></div>
 </div>
 
 <img class=preload src="{{ url_for('static', filename=image_plus) }}" >
