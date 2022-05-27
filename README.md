@@ -49,6 +49,7 @@ Setup:
   ]
 }
 ```
+- Copy some images under  data/images/
 - Start the docker instance
 - Open the URL in http://localhost:$EXPOSE
 
