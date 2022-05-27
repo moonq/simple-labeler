@@ -59,10 +59,15 @@ def before_request_func():
 
     if not "title" in g.config:
         g.config["title"] = "Labeler"
+    if not "title" in g.config:
+        g.config["title"] = "Labeler"
 
     for label in g.labels:
         if label["type"] == "range":
             label["value"] = label.get("default", label.get("min", ""))
+        elif label["type"] == "info":
+            label["name"] = ""
+            label["value"] = ""
         else:
             label["value"] = label.get("default", "")
 
@@ -103,10 +108,12 @@ def get_metadata(imagepath):
             values = json.load(fp)
             metadata = [x.copy() for x in g.labels.copy()]
             for label in metadata:
+                if not "name" in label:
+                    continue
                 if label["name"] in values:
                     label["value"] = values[label["name"]]
                 else:
-                    label["value"] = label["default"]
+                    label["value"] = label.get("default", "")
 
             return metadata
     except FileNotFoundError:
@@ -122,8 +129,10 @@ def set_metadata(values, imagepath):
 
     metadata = [x.copy() for x in g.labels.copy()]
     for label in metadata:
+        if not "name" in label:
+            continue
         if not label["name"] in values:
-            values[label["name"]] = label["default"]
+            values[label["name"]] = label.get("default", "")
 
     # logging.warning((path, values))
     if not os.path.exists(
@@ -177,6 +186,11 @@ def show_image(id=None):
             if key.startswith("label_"):
                 dictkey = key[6:]
                 metadata[dictkey] = str(request.form[key])
+        # Find missing checkboxes
+        for label in g.labels:
+            if label["type"] == "checkbox":
+                if "label_{}".format(label["name"]) not in request.form:
+                    metadata[label["name"]] = "off"
         set_metadata(metadata, image_name)
 
     images = get_image_list()
