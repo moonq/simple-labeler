@@ -127,7 +127,7 @@ def get_metadata(imagepath):
 
 def set_metadata(values, imagepath):
 
-    metadata = [x.copy() for x in g.labels.copy()]
+    metadata = [x.copy() for x in g.labels.copy() if x['type'] != "info"]
     for label in metadata:
         if not "name" in label:
             continue
