@@ -3,6 +3,7 @@
 if [[ ! -e .env ]]; then
   cp -v example.env .env
 fi
+mkdir -p data
 
 
 up() { # Run the service
