@@ -10,6 +10,7 @@ Setup:
 ```
 {
   "title": "My Labeler",
+  "images": "global",
   "users": [
     "user1",
     "name2"
@@ -65,6 +66,15 @@ Setup:
 - Copy some images under  data/images/
 - Start the docker instance
 - Open the URL in http://localhost:$EXPOSE
+
+## Config entries
+
+- title: Name of the site
+- images:
+  - global: Every labeler sees all images in folder data/images/
+  - personal: Labeler only sees images under folder data/images/[LabelerName]/
+- users: List of labeler names
+- labels: List of labels, see below
 
 ## Label types
 

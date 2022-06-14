@@ -15,7 +15,7 @@ from flask import (
 from revprox import ReverseProxied
 
 # configuration
-VERSION = "2022.05.27"
+VERSION = "2022.06.14"
 IMAGEDIR = "/data/images/"
 LABELDIR = "/data/labels/"
 CONFIG_FILE = "/data/config.json"
@@ -32,37 +32,37 @@ app.config.from_object(__name__)
 app.wsgi_app = ReverseProxied(app.wsgi_app)
 
 
-@app.before_request
-def before_request_func():
-    g.version = app.config["VERSION"]
+def read_config():
     try:
         with open(app.config["CONFIG_FILE"], "rt") as fp:
-            g.config = json.load(fp)
-            g.labels = g.config["labels"]
-            g.users = g.config["users"]
+            config = json.load(fp)
     except Exception as e:
         logging.warning(e)
         logging.warning("config.json could not be read. using defaults.")
-        g.labels = [
-            {"type": "checkbox", "name": "my_check", "default": "off"},
-            {"type": "text", "name": "my_text", "default": "Some text"},
-            {
-                "type": "range",
-                "name": "my_slider",
-                "default": "75",
-                "min": "0",
-                "max": "100",
-            },
-        ]
-        g.config = {"title": "Labeler", "labels": g.labels}
-        g.users = ["user"]
+        config = {
+            "title": "Labeler",
+            "labels": [
+                {"type": "checkbox", "name": "my_check", "default": "off"},
+                {"type": "text", "name": "my_text", "default": "Some text"},
+                {
+                    "type": "range",
+                    "name": "my_slider",
+                    "default": "75",
+                    "min": "0",
+                    "max": "100",
+                },
+            ],
+            "users": "user",
+        }
 
-    if not "title" in g.config:
-        g.config["title"] = "Labeler"
-    if not "title" in g.config:
-        g.config["title"] = "Labeler"
+    if not "title" in config:
+        config["title"] = "Labeler"
+    if not "images" in config:
+        config["images"] = "global"
+    if not config["images"] in ("global", "personal"):
+        raise ValueError("Config 'images' is not global / personal")
 
-    for label in g.labels:
+    for label in config["labels"]:
         if label["type"] == "range":
             label["value"] = label.get("default", label.get("min", ""))
         elif label["type"] == "info":
@@ -70,6 +70,18 @@ def before_request_func():
             label["value"] = ""
         else:
             label["value"] = label.get("default", "")
+    return config
+
+
+app.config["user_config"] = read_config()
+
+
+@app.before_request
+def before_request_func():
+    g.version = app.config["VERSION"]
+    g.config = app.config["user_config"]
+    g.labels = app.config["user_config"]["labels"]
+    g.users = app.config["user_config"]["users"]
 
 
 def natural_key(string_):
@@ -92,10 +104,14 @@ def get_current_image(images):
 
 
 def get_image_list():
+    if g.config["images"] == "global":
+        image_path = app.config["IMAGEDIR"]
+    if g.config["images"] == "personal":
+        image_path = os.path.join(app.config["IMAGEDIR"], get_user())
     return sorted(
         [
-            os.path.join(app.config["IMAGEDIR"], x)
-            for x in os.listdir(app.config["IMAGEDIR"])
+            os.path.join(image_path, x)
+            for x in os.listdir(image_path)
             if not x.endswith("json")
         ],
         key=natural_key,
@@ -126,24 +142,20 @@ def get_metadata(imagepath):
 
 
 def set_metadata(values, imagepath):
-
-    metadata = [x.copy() for x in g.labels.copy() if x['type'] != "info"]
+    """Write metadata as json"""
+    metadata = [x.copy() for x in g.labels.copy() if x["type"] != "info"]
     for label in metadata:
         if not "name" in label:
             continue
         if not label["name"] in values:
             values[label["name"]] = label.get("default", "")
 
-    # logging.warning((path, values))
-    if not os.path.exists(
-        os.path.join(app.config["IMAGEDIR"], os.path.basename(imagepath))
-    ):
-        return
     with open(get_metadata_path(imagepath), "wt") as fp:
         return json.dump(values, fp, indent=2, sort_keys=True)
 
 
 def set_user(user_name):
+    """Set user in session, create dir for user labels"""
     if user_name not in g.users:
         raise ValueError("No such user {}".format(user_name))
     session["user"] = user_name
