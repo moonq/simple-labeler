@@ -92,7 +92,7 @@ def get_current_image(images):
 
 
 def get_image_list():
-    return sorted(
+    image_list = sorted(
         [
             os.path.join(app.config["IMAGEDIR"], x)
             for x in os.listdir(app.config["IMAGEDIR"])
@@ -100,6 +100,9 @@ def get_image_list():
         ],
         key=natural_key,
     )
+    if len(image_list) == 0:
+        return [None]
+    return image_list
 
 
 def get_metadata(imagepath):
